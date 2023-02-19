@@ -11,7 +11,7 @@ with open("output.txt", "r") as f:
 distance = []
 print(len(my_list))
 for a in range(len(my_list)):
-    for j in range(a+1,len(my_list)-1):
+    for j in range(a+1,len(my_list)):
         for i in range(len(my_list[0])):
             distance.append(my_list[a][i] - my_list[j][i])
         diffsquare = 0
