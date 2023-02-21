@@ -1,20 +1,21 @@
 import dlib
 import cv2
 import math
+import numpy
 # Load the Haar cascade file for face detection
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 # Load the image
-#image = cv2.imread('MN (1).png')
+frame = cv2.imread('../MSM (2).png')
 
 # Convert the image to grayscale
-#gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 # Detect faces in the image
-#faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
 # If a face is detected, detect the facial landmarks
-video = cv2.VideoCapture("C:/Users/raul/Desktop/[1080_60] TWICE 'Feel Special' MV.mp4")
+'''video = cv2.VideoCapture("C:/Users/raul/Desktop/[1080_60] TWICE 'Feel Special' MV.mp4")
 video.set(cv2.CAP_PROP_POS_FRAMES, 1170)
 while video.isOpened():
   # Read the frame
@@ -24,8 +25,8 @@ while video.isOpened():
     break
   cv2.imshow('Video', frame)
   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-  faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-  if len(faces) > 0:
+  faces = face_cascade.detectMultiScale(gray, 1.3, 5)'''
+if len(faces) > 0:
     for face in faces:
       # Load the pre-trained model
       predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
@@ -46,6 +47,47 @@ while video.isOpened():
     # Iterate over the landmarks and draw circles at each point
       a = 0
       baseline = [landmarks[0],landmarks[16]]
+      '''baseline = numpy.linalg.norm(numpy.array(landmarks[0])-numpy.array(landmarks[16]))
+      inner_eyes = numpy.linalg.norm(numpy.array(landmarks[39])-numpy.array(landmarks[42]))
+      vector = [0] * 19
+      vector[0] = baseline/inner_eyes
+      jaw1 = numpy.linalg.norm(numpy.array(landmarks[1])-numpy.array(landmarks[15]))
+      jaw2 = numpy.linalg.norm(numpy.array(landmarks[2])-numpy.array(landmarks[14]))
+      jaw3 = numpy.linalg.norm(numpy.array(landmarks[3])-numpy.array(landmarks[13]))
+      jaw4 = numpy.linalg.norm(numpy.array(landmarks[4])-numpy.array(landmarks[12]))
+      jaw5 = numpy.linalg.norm(numpy.array(landmarks[5])-numpy.array(landmarks[11]))
+      jaw6 = numpy.linalg.norm(numpy.array(landmarks[6])-numpy.array(landmarks[10]))
+      jaw7 = numpy.linalg.norm(numpy.array(landmarks[7])-numpy.array(landmarks[9]))
+      vector[1] = baseline/jaw1
+      vector[2] = baseline/jaw2
+      vector[3] = baseline/jaw3
+      vector[4] = baseline/jaw4
+      vector[5] = baseline/jaw5
+      vector[6] = baseline/jaw6
+      vector[7] = baseline/jaw7
+      brow1 = numpy.linalg.norm(numpy.array(landmarks[17])-numpy.array(landmarks[26]))
+      brow2 = numpy.linalg.norm(numpy.array(landmarks[18])-numpy.array(landmarks[25]))
+      brow3 = numpy.linalg.norm(numpy.array(landmarks[19])-numpy.array(landmarks[24]))
+      brow4 = numpy.linalg.norm(numpy.array(landmarks[20])-numpy.array(landmarks[23]))
+      brow5 = numpy.linalg.norm(numpy.array(landmarks[21])-numpy.array(landmarks[22]))
+      vector[8] = baseline/brow1
+      vector[9] = baseline/brow2
+      vector[10] = baseline/brow3
+      vector[11] = baseline/brow4
+      vector[12] = baseline/brow5
+      nose = numpy.linalg.norm(numpy.array(landmarks[27])-numpy.array(landmarks[30]))
+      vector[13] = baseline/nose
+      philtrum = numpy.linalg.norm(numpy.array(landmarks[33])-numpy.array(landmarks[51]))
+      vector[14] = baseline/philtrum
+      outer_eyes = numpy.linalg.norm(numpy.array(landmarks[36])-numpy.array(landmarks[45]))
+      vector[15] = baseline/outer_eyes
+      eye_to_nose1 = numpy.linalg.norm(numpy.array(landmarks[30])-numpy.array(landmarks[36]))
+      eye_to_nose2 = numpy.linalg.norm(numpy.array(landmarks[30])-numpy.array(landmarks[45]))
+      vector[16] = baseline/eye_to_nose1
+      vector[17] = baseline/eye_to_nose2
+      nose_chin = numpy.linalg.norm(numpy.array(landmarks[33])-numpy.array(landmarks[8]))
+      vector[18] = baseline/nose_chin
+      '''
       inner_eyes = [landmarks[39],landmarks[42]]
       basediffx = baseline[0][0] - baseline[1][0]
       basediffy = baseline[0][1] - baseline[1][1]
@@ -53,7 +95,7 @@ while video.isOpened():
       eyesdiffx = inner_eyes[0][0] - inner_eyes[1][0]
       eyesdiffy = inner_eyes[0][1] - inner_eyes[1][1]
       eyesdistance = math.sqrt(eyesdiffx ** 2 + eyesdiffy ** 2)
-      vector = []
+      vector = [0] * 19
       vector.append(basedistance/eyesdistance)
       jaw1 = [landmarks[1],landmarks[15]]
       jaw2 = [landmarks[2],landmarks[14]]
