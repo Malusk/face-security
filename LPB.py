@@ -2,50 +2,55 @@ import dlib
 import cv2
 import math
 import numpy
+import os
+import time
+
+start_time = time.time()
 # Load the Haar cascade file for face detection
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 # Load the image
-frame = cv2.imread('../MSM (2).png')
 
 # Convert the image to grayscale
-gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 # Detect faces in the image
-faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+#faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
 # If a face is detected, detect the facial landmarks
-'''video = cv2.VideoCapture("C:/Users/raul/Desktop/[1080_60] TWICE 'Feel Special' MV.mp4")
-video.set(cv2.CAP_PROP_POS_FRAMES, 1170)
-while video.isOpened():
+#video = cv2.VideoCapture(0)
+#video.set(cv2.CAP_PROP_POS_FRAMES, 1170)
+#while video.isOpened():
   # Read the frame
-  success, frame = video.read(0)
-  if not success:
-    print("no")
-    break
-  cv2.imshow('Video', frame)
+  #success, frame = video.read(0)
+  #if not success:
+   # print("no")
+    #break
+  #cv2.imshow('Video', frame)
+ # cv2.imwrite('Frame.jpg',frame)
+def facetrain(frame):
+  face_cascade = cv2.CascadeClassifier('C:/Users/demen/Desktop/haarcascade_frontalface_default.xml')
   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-  faces = face_cascade.detectMultiScale(gray, 1.3, 5)'''
-if len(faces) > 0:
+  faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+  if len(faces) > 0:
     for face in faces:
       # Load the pre-trained model
-      predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
+      predictor = dlib.shape_predictor('C:/Users/demen/Desktop/shape_predictor_68_face_landmarks.dat')
 
       # Extract the region of the face
       #print(faces)
       x, y, w, h = face
-      face_region = frame[y:y+h, x:x+w]
+      #face_region = frame[y:y+h, x:x+w]
       cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
       # Convert the face region to grayscale
-      face_region_gray = cv2.cvtColor(face_region, cv2.COLOR_BGR2GRAY)
+      #face_region_gray = cv2.cvtColor(face_region, cv2.COLOR_BGR2GRAY)
 
       # Detect the facial landmarks
       shape = predictor(frame, dlib.rectangle(int(x),int(y),int(x+w),int(y+h)))
       landmarks = [(shape.part(i).x, shape.part(i).y) for i in range(shape.num_parts)]
       #print(landmarks)
     # Iterate over the landmarks and draw circles at each point
-      a = 0
+      #a = 0
       baseline = [landmarks[0],landmarks[16]]
       '''baseline = numpy.linalg.norm(numpy.array(landmarks[0])-numpy.array(landmarks[16]))
       inner_eyes = numpy.linalg.norm(numpy.array(landmarks[39])-numpy.array(landmarks[42]))
@@ -95,7 +100,7 @@ if len(faces) > 0:
       eyesdiffx = inner_eyes[0][0] - inner_eyes[1][0]
       eyesdiffy = inner_eyes[0][1] - inner_eyes[1][1]
       eyesdistance = math.sqrt(eyesdiffx ** 2 + eyesdiffy ** 2)
-      vector = [0] * 19
+      vector = []
       vector.append(basedistance/eyesdistance)
       jaw1 = [landmarks[1],landmarks[15]]
       jaw2 = [landmarks[2],landmarks[14]]
@@ -133,7 +138,8 @@ if len(faces) > 0:
       vector.append(basedistance/(math.sqrt((eye_to_nose2[0][0] - eye_to_nose2[1][0])**2 + (eye_to_nose2[0][1] - eye_to_nose2[1][1])**2)))
       nose_chin = [landmarks[33],landmarks[8]]
       vector.append(basedistance/(math.sqrt((nose_chin[0][0] - nose_chin[1][0])**2 + (nose_chin[0][1] - nose_chin[1][1])**2)))
-      print(vector)
+      top_nose_eyebrow = [landmarks[22],landmarks[10]]
+      #print(len(vector))
       # Convert the list elements to strings and join them with commas
       output_str = ",".join(str(i) for i in vector)
 
@@ -141,7 +147,7 @@ if len(faces) > 0:
       with open("output.txt", "a") as f:
         f.write(output_str)
         f.write("\n")
-      for x, y in landmarks:
+      '''for x, y in landmarks:
         cv2.circle(frame, (x, y), 3, (255, 0, 0), -1)
         if a == 33:
           cv2.circle(frame, (x, y), 3, (255, 255, 0), -1)
@@ -151,5 +157,34 @@ if len(faces) > 0:
           cv2.circle(frame, (x, y), 3, (0, 255, 255), -1)
         if a == 0:
           cv2.circle(frame, (x, y), 3, (0, 255, 255), -1)
-        a = a + 1
-    cv2.imwrite('Frame.jpg',frame)
+        a = a + 1'''
+    #cv2.imwrite('Frame.jpg',frame)
+
+directory = 'C:/Users/demen/Desktop/manyface'
+
+# Recursively iterate over files in the directory and its subdirectories
+for root, dirs, files in os.walk(directory):
+    for filename in files:
+        # Check if the file is an image based on its extension
+        if filename.endswith('.jpg') or filename.endswith('.png') or filename.endswith('.jpeg'):
+            # Create the full file path
+            file_path = os.path.join(root, filename)
+
+            # Open the image file using OpenCV
+            try:
+                image = cv2.imread(file_path)
+                if image is not None:
+                    # Do something with the image here
+                    # ...
+                    facetrain(image)
+                    # Close the image file (no need to do anything with cv2.imread())
+                    pass
+                else:
+                    print(f"Failed to open {file_path}. It may not be a valid image file.")
+            except Exception as e:
+                print(f"Error occurred while processing {file_path}: {str(e)}")
+
+end_time = time.time()
+execution_time = end_time - start_time
+
+print(f"Execution time: {execution_time} seconds")
