@@ -31,6 +31,15 @@ def facetrain(frame):
   face_cascade = cv2.CascadeClassifier('C:/Users/demen/Desktop/haarcascade_frontalface_default.xml')
   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
   faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+  #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Create the LBP operator.
+  lbp = cv2.createLBPHOperator(radius, neighbors)
+
+    # Calculate the LBP of the image.
+  lbp_image = lbp.compute(gray)
+
+  print(lbp_image)
   if len(faces) > 0:
     for face in faces:
       # Load the pre-trained model
