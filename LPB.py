@@ -32,14 +32,6 @@ def facetrain(frame):
   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
   faces = face_cascade.detectMultiScale(gray, 1.3, 5)
   #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # Create the LBP operator.
-  lbp = cv2.createLBPHOperator(radius, neighbors)
-
-    # Calculate the LBP of the image.
-  lbp_image = lbp.compute(gray)
-
-  print(lbp_image)
   if len(faces) > 0:
     for face in faces:
       # Load the pre-trained model
@@ -168,6 +160,7 @@ def facetrain(frame):
           cv2.circle(frame, (x, y), 3, (0, 255, 255), -1)
         a = a + 1'''
     #cv2.imwrite('Frame.jpg',frame)
+    cv2.imwrite('Frame.jpg',frame)
 
 directory = 'C:/Users/demen/Desktop/manyface'
 
@@ -182,6 +175,7 @@ for root, dirs, files in os.walk(directory):
             # Open the image file using OpenCV
             try:
                 image = cv2.imread(file_path)
+                #cv2.imwrite('Frame.jpg',image)
                 if image is not None:
                     # Do something with the image here
                     # ...
