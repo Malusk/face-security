@@ -3,11 +3,14 @@ import cv2
 import numpy
 import dlib
 import torch
+from concurrent.futures import ThreadPoolExecutor
 import torch_directml
 import time
 start_time = time.time()
 # Create a DirectML device
 dml = torch_directml.device()
+from multiprocessing import Pool
+import multiprocessing
 
 # Define a function to compute the Euclidean distance between two vectors
 '''def euclidean_distance(x, y):
@@ -35,11 +38,10 @@ def main():
 			values = line.split(",")
 			# Convert each value to its appropriate data type and append to my_list
 			my_list.append([float(v) for v in values])
-	frame = cv2.imread("C:/Users/raul/Downloads/img_align_celeba/img_align_celeba/008532.jpg")
+	frame = cv2.imread("C:/Users/raul/Desktop/manyface/WhatsApp Image 2023-05-20 at 13.26.12.jpg")
 	face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-	print(faces)
 	if len(faces) > 0:
 		for face in faces:
 			# Load the pre-trained model
@@ -60,8 +62,12 @@ def main():
 			#print(landmarks)
 			# Iterate over the landmarks and draw circles at each point
 			#a = 0
+			vector = []
 			baseline = numpy.linalg.norm(numpy.array(landmarks[0])-numpy.array(landmarks[16]))
-			inner_eyes = numpy.linalg.norm(numpy.array(landmarks[39])-numpy.array(landmarks[42]))
+			for x in range(68):
+				for y in range(x+1,68):
+					vector.append(baseline/(numpy.linalg.norm(numpy.array(landmarks[x])-numpy.array(landmarks[y]))))
+			'''inner_eyes = numpy.linalg.norm(numpy.array(landmarks[39])-numpy.array(landmarks[42]))
 			vector = [0] * 19
 			vector[0] = baseline/inner_eyes
 			jaw1 = numpy.linalg.norm(numpy.array(landmarks[1])-numpy.array(landmarks[15]))
@@ -99,17 +105,29 @@ def main():
 			vector[16] = baseline/eye_to_nose1
 			vector[17] = baseline/eye_to_nose2
 			nose_chin = numpy.linalg.norm(numpy.array(landmarks[33])-numpy.array(landmarks[8]))
-			vector[18] = baseline/nose_chin
+			vector[18] = baseline/nose_chin'''
 			count = 0
-			for i in range(len(my_list)):
-				#output_num = str(euclidean_distance(vector,my_list[i]).item())
-				output_num = str(euclidean_distance(vector,my_list[i]))
+			'''for i in range(len(my_list)):
+				output_num = str(euclidean_distance(vector,my_list[i]).item())
+				#output_num = str(euclidean_distance(vector,my_list[i]))
 				flnum = float(output_num)
-				if flnum < 1.5:
+				if flnum < 50:
 					count = count + 1
 				with open("output1.txt", "a") as f:
 					f.write(output_num)
-					f.write("\n")
+					f.write("\n")'''
+			
+			'''with Pool(multiprocessing.cpu_count()) as p: result = p.starmap(euclidean_distance, [(vector, x) for x in my_list], chunksize=625)
+				
+			with open('result.txt', 'w') as f: # open a txt file for writing
+				for r in result: # iterate over the result list
+					f.write(str(r) + '\n')
+					if r < 200:
+						count = count + 1'''
+			with ThreadPoolExecutor(max_workers=8) as executor: result = executor.map(lambda x: euclidean_distance(vector,x),my_list,chunksize=625)
+			for r in result: # iterate over the result list
+					if r < 250:
+						count = count + 1
 			print(count)
 		
 def euclidean_distance(x, y):
