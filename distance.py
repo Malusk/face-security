@@ -38,97 +38,103 @@ def main():
 			values = line.split(",")
 			# Convert each value to its appropriate data type and append to my_list
 			my_list.append([float(v) for v in values])
-	frame = cv2.imread("C:/Users/raul/Desktop/manyface/WhatsApp Image 2023-05-20 at 13.26.12.jpg")
-	face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-	faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-	if len(faces) > 0:
-		for face in faces:
-			# Load the pre-trained model
-			predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
+	video = cv2.VideoCapture(1)
+	while video.isOpened():
+		success, frame = video.read()
+		if not success:
+			print("no")
+			break
+		#frame = cv2.imread("C:/Users/raul/Desktop/manyface/WhatsApp Image 2023-05-20 at 13.26.12.jpg")
+		face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+		if len(faces) > 0:
+			for face in faces:
+				# Load the pre-trained model
+				predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
-			# Extract the region of the face
-			#print(faces)
-			x, y, w, h = face
-			#face_region = frame[y:y+h, x:x+w]
-			cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+				# Extract the region of the face
+				#print(faces)
+				x, y, w, h = face
+				#face_region = frame[y:y+h, x:x+w]
+				cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-			# Convert the face region to grayscale
-			#face_region_gray = cv2.cvtColor(face_region, cv2.COLOR_BGR2GRAY)
+				# Convert the face region to grayscale
+				#face_region_gray = cv2.cvtColor(face_region, cv2.COLOR_BGR2GRAY)
 
-			# Detect the facial landmarks
-			shape = predictor(frame, dlib.rectangle(int(x),int(y),int(x+w),int(y+h)))
-			landmarks = [(shape.part(i).x, shape.part(i).y) for i in range(shape.num_parts)]
-			#print(landmarks)
-			# Iterate over the landmarks and draw circles at each point
-			#a = 0
-			vector = []
-			baseline = numpy.linalg.norm(numpy.array(landmarks[0])-numpy.array(landmarks[16]))
-			for x in range(68):
-				for y in range(x+1,68):
-					vector.append(baseline/(numpy.linalg.norm(numpy.array(landmarks[x])-numpy.array(landmarks[y]))))
-			'''inner_eyes = numpy.linalg.norm(numpy.array(landmarks[39])-numpy.array(landmarks[42]))
-			vector = [0] * 19
-			vector[0] = baseline/inner_eyes
-			jaw1 = numpy.linalg.norm(numpy.array(landmarks[1])-numpy.array(landmarks[15]))
-			jaw2 = numpy.linalg.norm(numpy.array(landmarks[2])-numpy.array(landmarks[14]))
-			jaw3 = numpy.linalg.norm(numpy.array(landmarks[3])-numpy.array(landmarks[13]))
-			jaw4 = numpy.linalg.norm(numpy.array(landmarks[4])-numpy.array(landmarks[12]))
-			jaw5 = numpy.linalg.norm(numpy.array(landmarks[5])-numpy.array(landmarks[11]))
-			jaw6 = numpy.linalg.norm(numpy.array(landmarks[6])-numpy.array(landmarks[10]))
-			jaw7 = numpy.linalg.norm(numpy.array(landmarks[7])-numpy.array(landmarks[9]))
-			vector[1] = baseline/jaw1
-			vector[2] = baseline/jaw2
-			vector[3] = baseline/jaw3
-			vector[4] = baseline/jaw4
-			vector[5] = baseline/jaw5
-			vector[6] = baseline/jaw6
-			vector[7] = baseline/jaw7
-			brow1 = numpy.linalg.norm(numpy.array(landmarks[17])-numpy.array(landmarks[26]))
-			brow2 = numpy.linalg.norm(numpy.array(landmarks[18])-numpy.array(landmarks[25]))
-			brow3 = numpy.linalg.norm(numpy.array(landmarks[19])-numpy.array(landmarks[24]))
-			brow4 = numpy.linalg.norm(numpy.array(landmarks[20])-numpy.array(landmarks[23]))
-			brow5 = numpy.linalg.norm(numpy.array(landmarks[21])-numpy.array(landmarks[22]))
-			vector[8] = baseline/brow1
-			vector[9] = baseline/brow2
-			vector[10] = baseline/brow3
-			vector[11] = baseline/brow4
-			vector[12] = baseline/brow5
-			nose = numpy.linalg.norm(numpy.array(landmarks[27])-numpy.array(landmarks[30]))
-			vector[13] = baseline/nose
-			philtrum = numpy.linalg.norm(numpy.array(landmarks[33])-numpy.array(landmarks[51]))
-			vector[14] = baseline/philtrum
-			outer_eyes = numpy.linalg.norm(numpy.array(landmarks[36])-numpy.array(landmarks[45]))
-			vector[15] = baseline/outer_eyes
-			eye_to_nose1 = numpy.linalg.norm(numpy.array(landmarks[30])-numpy.array(landmarks[36]))
-			eye_to_nose2 = numpy.linalg.norm(numpy.array(landmarks[30])-numpy.array(landmarks[45]))
-			vector[16] = baseline/eye_to_nose1
-			vector[17] = baseline/eye_to_nose2
-			nose_chin = numpy.linalg.norm(numpy.array(landmarks[33])-numpy.array(landmarks[8]))
-			vector[18] = baseline/nose_chin'''
-			count = 0
-			'''for i in range(len(my_list)):
-				output_num = str(euclidean_distance(vector,my_list[i]).item())
-				#output_num = str(euclidean_distance(vector,my_list[i]))
-				flnum = float(output_num)
-				if flnum < 50:
-					count = count + 1
-				with open("output1.txt", "a") as f:
-					f.write(output_num)
-					f.write("\n")'''
-			
-			'''with Pool(multiprocessing.cpu_count()) as p: result = p.starmap(euclidean_distance, [(vector, x) for x in my_list], chunksize=625)
-				
-			with open('result.txt', 'w') as f: # open a txt file for writing
-				for r in result: # iterate over the result list
-					f.write(str(r) + '\n')
-					if r < 200:
-						count = count + 1'''
-			with ThreadPoolExecutor(max_workers=8) as executor: result = executor.map(lambda x: euclidean_distance(vector,x),my_list,chunksize=625)
-			for r in result: # iterate over the result list
-					if r < 250:
+				# Detect the facial landmarks
+				shape = predictor(frame, dlib.rectangle(int(x),int(y),int(x+w),int(y+h)))
+				landmarks = [(shape.part(i).x, shape.part(i).y) for i in range(shape.num_parts)]
+				#print(landmarks)
+				# Iterate over the landmarks and draw circles at each point
+				#a = 0
+				vector = []
+				baseline = numpy.linalg.norm(numpy.array(landmarks[0])-numpy.array(landmarks[16]))
+				for x in range(68):
+					for y in range(x+1,68):
+						vector.append(baseline/(numpy.linalg.norm(numpy.array(landmarks[x])-numpy.array(landmarks[y]))))
+				'''inner_eyes = numpy.linalg.norm(numpy.array(landmarks[39])-numpy.array(landmarks[42]))
+				vector = [0] * 19
+				vector[0] = baseline/inner_eyes
+				jaw1 = numpy.linalg.norm(numpy.array(landmarks[1])-numpy.array(landmarks[15]))
+				jaw2 = numpy.linalg.norm(numpy.array(landmarks[2])-numpy.array(landmarks[14]))
+				jaw3 = numpy.linalg.norm(numpy.array(landmarks[3])-numpy.array(landmarks[13]))
+				jaw4 = numpy.linalg.norm(numpy.array(landmarks[4])-numpy.array(landmarks[12]))
+				jaw5 = numpy.linalg.norm(numpy.array(landmarks[5])-numpy.array(landmarks[11]))
+				jaw6 = numpy.linalg.norm(numpy.array(landmarks[6])-numpy.array(landmarks[10]))
+				jaw7 = numpy.linalg.norm(numpy.array(landmarks[7])-numpy.array(landmarks[9]))
+				vector[1] = baseline/jaw1
+				vector[2] = baseline/jaw2
+				vector[3] = baseline/jaw3
+				vector[4] = baseline/jaw4
+				vector[5] = baseline/jaw5
+				vector[6] = baseline/jaw6
+				vector[7] = baseline/jaw7
+				brow1 = numpy.linalg.norm(numpy.array(landmarks[17])-numpy.array(landmarks[26]))
+				brow2 = numpy.linalg.norm(numpy.array(landmarks[18])-numpy.array(landmarks[25]))
+				brow3 = numpy.linalg.norm(numpy.array(landmarks[19])-numpy.array(landmarks[24]))
+				brow4 = numpy.linalg.norm(numpy.array(landmarks[20])-numpy.array(landmarks[23]))
+				brow5 = numpy.linalg.norm(numpy.array(landmarks[21])-numpy.array(landmarks[22]))
+				vector[8] = baseline/brow1
+				vector[9] = baseline/brow2
+				vector[10] = baseline/brow3
+				vector[11] = baseline/brow4
+				vector[12] = baseline/brow5
+				nose = numpy.linalg.norm(numpy.array(landmarks[27])-numpy.array(landmarks[30]))
+				vector[13] = baseline/nose
+				philtrum = numpy.linalg.norm(numpy.array(landmarks[33])-numpy.array(landmarks[51]))
+				vector[14] = baseline/philtrum
+				outer_eyes = numpy.linalg.norm(numpy.array(landmarks[36])-numpy.array(landmarks[45]))
+				vector[15] = baseline/outer_eyes
+				eye_to_nose1 = numpy.linalg.norm(numpy.array(landmarks[30])-numpy.array(landmarks[36]))
+				eye_to_nose2 = numpy.linalg.norm(numpy.array(landmarks[30])-numpy.array(landmarks[45]))
+				vector[16] = baseline/eye_to_nose1
+				vector[17] = baseline/eye_to_nose2
+				nose_chin = numpy.linalg.norm(numpy.array(landmarks[33])-numpy.array(landmarks[8]))
+				vector[18] = baseline/nose_chin'''
+				count = 0
+				'''for i in range(len(my_list)):
+					output_num = str(euclidean_distance(vector,my_list[i]).item())
+					#output_num = str(euclidean_distance(vector,my_list[i]))
+					flnum = float(output_num)
+					if flnum < 50:
 						count = count + 1
-			print(count)
+					with open("output1.txt", "a") as f:
+						f.write(output_num)
+						f.write("\n")'''
+				
+				with Pool(multiprocessing.cpu_count()) as p: result = p.starmap(euclidean_distance, [(vector, x) for x in my_list])
+					
+				#with open('result.txt', 'w') as f: # open a txt file for writing
+				for r in result: # iterate over the result list
+					#f.write(str(r) + '\n')
+					if r < 30:
+						count = count + 1
+				'''with ThreadPoolExecutor(max_workers=8) as executor: result = executor.map(lambda x: euclidean_distance(vector,x),my_list,chunksize=625)
+				for r in result: # iterate over the result list
+						if r < 250:
+							count = count + 1'''
+				print(count)
 		
 def euclidean_distance(x, y):
 	return math.sqrt(sum([(a - b) ** 2 for a, b in zip(x, y)]))
