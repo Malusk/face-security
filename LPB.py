@@ -5,7 +5,7 @@ import numpy
 import os
 import time
 
-start_time = time.time()
+#start_time = time.time()
 # Load the Haar cascade file for face detection
 
 # Load the image
@@ -28,14 +28,14 @@ start_time = time.time()
   #cv2.imshow('Video', frame)
  # cv2.imwrite('Frame.jpg',frame)
 def facetrain(frame):
-  face_cascade = cv2.CascadeClassifier('C:/Users/demen/Desktop/haarcascade_frontalface_default.xml')
+  face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
   faces = face_cascade.detectMultiScale(gray, 1.3, 5)
   #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
   if len(faces) > 0:
     for face in faces:
       # Load the pre-trained model
-      predictor = dlib.shape_predictor('C:/Users/demen/Desktop/shape_predictor_68_face_landmarks.dat')
+      predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
       # Extract the region of the face
       #print(faces)
@@ -162,10 +162,17 @@ def facetrain(frame):
     #cv2.imwrite('Frame.jpg',frame)
     cv2.imwrite('Frame.jpg',frame)
 
-directory = 'C:/Users/demen/Desktop/manyface'
+video = cv2.VideoCapture(1)
+while video.isOpened():
+  success, frame = video.read()
+  if not success:
+    print("no")
+    break
+  facetrain(frame)
+#directory = 'C:/Users/demen/Desktop/manyface'
 
 # Recursively iterate over files in the directory and its subdirectories
-for root, dirs, files in os.walk(directory):
+'''for root, dirs, files in os.walk(directory):
     for filename in files:
         # Check if the file is an image based on its extension
         if filename.endswith('.jpg') or filename.endswith('.png') or filename.endswith('.jpeg'):
@@ -190,4 +197,4 @@ for root, dirs, files in os.walk(directory):
 end_time = time.time()
 execution_time = end_time - start_time
 
-print(f"Execution time: {execution_time} seconds")
+print(f"Execution time: {execution_time} seconds")'''

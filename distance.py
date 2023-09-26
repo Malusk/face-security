@@ -2,13 +2,13 @@ import math
 import cv2
 import numpy
 import dlib
-import torch
+#import torch
 from concurrent.futures import ThreadPoolExecutor
-import torch_directml
+#import torch_directml
 import time
 start_time = time.time()
 # Create a DirectML device
-dml = torch_directml.device()
+#dml = torch_directml.device()
 from multiprocessing import Pool
 import multiprocessing
 
@@ -41,7 +41,7 @@ def main():
 	video = cv2.VideoCapture(1)
 	while video.isOpened():
 		success, frame = video.read()
-		if not success:
+		if not success:`1	`
 			print("no")
 			break
 		#frame = cv2.imread("C:/Users/raul/Desktop/manyface/WhatsApp Image 2023-05-20 at 13.26.12.jpg")
@@ -113,23 +113,23 @@ def main():
 				nose_chin = numpy.linalg.norm(numpy.array(landmarks[33])-numpy.array(landmarks[8]))
 				vector[18] = baseline/nose_chin'''
 				count = 0
-				'''for i in range(len(my_list)):
-					output_num = str(euclidean_distance(vector,my_list[i]).item())
-					#output_num = str(euclidean_distance(vector,my_list[i]))
+				for i in range(len(my_list)):
+					#output_num = str(euclidean_distance(vector,my_list[i]).item())
+					output_num = str(euclidean_distance(vector,my_list[i]))
 					flnum = float(output_num)
 					if flnum < 50:
 						count = count + 1
-					with open("output1.txt", "a") as f:
-						f.write(output_num)
-						f.write("\n")'''
+					#with open("output1.txt", "a") as f:
+					#	f.write(output_num)
+					#	f.write("\n")
 				
-				with Pool(multiprocessing.cpu_count()) as p: result = p.starmap(euclidean_distance, [(vector, x) for x in my_list])
+				'''with Pool(multiprocessing.cpu_count()) as p: result = p.starmap(euclidean_distance, [(vector, x) for x in my_list])
 					
 				#with open('result.txt', 'w') as f: # open a txt file for writing
 				for r in result: # iterate over the result list
 					#f.write(str(r) + '\n')
-					if r < 30:
-						count = count + 1
+					if r < 100:
+						count = count + 1'''
 				'''with ThreadPoolExecutor(max_workers=8) as executor: result = executor.map(lambda x: euclidean_distance(vector,x),my_list,chunksize=625)
 				for r in result: # iterate over the result list
 						if r < 250:
