@@ -1,9 +1,9 @@
 import dlib
 import cv2
 import math
-import numpy
-import os
-import time
+#import numpy
+#import os
+#import time
 
 #start_time = time.time()
 # Load the Haar cascade file for face detection
@@ -28,7 +28,7 @@ import time
   #cv2.imshow('Video', frame)
  # cv2.imwrite('Frame.jpg',frame)
 def facetrain(frame):
-  face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+  face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
   gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
   faces = face_cascade.detectMultiScale(gray, 1.3, 5)
   #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -40,6 +40,8 @@ def facetrain(frame):
       # Extract the region of the face
       #print(faces)
       x, y, w, h = face
+      if w < 250:
+          break
       #face_region = frame[y:y+h, x:x+w]
       cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
@@ -140,7 +142,15 @@ def facetrain(frame):
       nose_chin = [landmarks[33],landmarks[8]]
       vector.append(basedistance/(math.sqrt((nose_chin[0][0] - nose_chin[1][0])**2 + (nose_chin[0][1] - nose_chin[1][1])**2)))
       top_nose_eyebrow = [landmarks[22],landmarks[10]]
-      #print(len(vector))
+      outer_eyes_to_outermouth1 = [landmarks[48],landmarks[36]]
+      outer_eyes_to_outermouth2 = [landmarks[45],landmarks[54]]
+      vector.append(basedistance/(math.sqrt((outer_eyes_to_outermouth1[0][0] - outer_eyes_to_outermouth1[1][0])**2 + (outer_eyes_to_outermouth1[0][1] - outer_eyes_to_outermouth1[1][1])**2)))
+      vector.append(basedistance/(math.sqrt((outer_eyes_to_outermouth2[0][0] - outer_eyes_to_outermouth2[1][0])**2 + (outer_eyes_to_outermouth2[0][1] - outer_eyes_to_outermouth2[1][1])**2)))
+      brow_to_chin1 = [landmarks[17],landmarks[8]]
+      brow_to_chin2 = [landmarks[26],landmarks[8]]
+      vector.append(basedistance/(math.sqrt((brow_to_chin1[0][0] - brow_to_chin1[1][0])**2 + (brow_to_chin1[0][1] - brow_to_chin1[1][1])**2)))
+      vector.append(basedistance/(math.sqrt((brow_to_chin2[0][0] - brow_to_chin2[1][0])**2 + (brow_to_chin2[0][1] - brow_to_chin2[1][1])**2)))
+#      print(len(vector))
       # Convert the list elements to strings and join them with commas
       output_str = ",".join(str(i) for i in vector)
 
@@ -148,21 +158,25 @@ def facetrain(frame):
       with open("output.txt", "a") as f:
         f.write(output_str)
         f.write("\n")
-      '''for x, y in landmarks:
+      a = 0
+      for x, y in landmarks:
         cv2.circle(frame, (x, y), 3, (255, 0, 0), -1)
-        if a == 33:
+        if a == 48:
           cv2.circle(frame, (x, y), 3, (255, 255, 0), -1)
-        if a == 8:
+        if a == 36:
           cv2.circle(frame, (x, y), 3, (255, 255, 0), -1)
-        if a == 16:
+        if a == 54:
           cv2.circle(frame, (x, y), 3, (0, 255, 255), -1)
-        if a == 0:
+        if a == 45:
           cv2.circle(frame, (x, y), 3, (0, 255, 255), -1)
-        a = a + 1'''
+        a = a + 1
     #cv2.imwrite('Frame.jpg',frame)
-    cv2.imwrite('Frame.jpg',frame)
+        cv2.imwrite('Frame.jpg',frame)
+        print(len(faces))
 
-video = cv2.VideoCapture(1)
+video = cv2.VideoCapture(0)
+video.set(cv2.CAP_PROP_FRAME_WIDTH,1920)
+video.set(cv2.CAP_PROP_FRAME_HEIGHT,1080)
 while video.isOpened():
   success, frame = video.read()
   if not success:

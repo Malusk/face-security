@@ -26,8 +26,7 @@ import multiprocessing
   # Take the square root of the sum
   dist = torch.sqrt(sum_diff)
   # Return the distance
-  return dist'''
-
+  return dist'''  
 def main():
 	my_list = []
 	with open("output.txt", "r") as f:
@@ -38,10 +37,12 @@ def main():
 			values = line.split(",")
 			# Convert each value to its appropriate data type and append to my_list
 			my_list.append([float(v) for v in values])
-	video = cv2.VideoCapture(1)
+	video = cv2.VideoCapture(0)
+	video.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
+	video.set(cv2.CAP_PROP_FRAME_WIDTH,960)
 	while video.isOpened():
 		success, frame = video.read()
-		if not success:`1	`
+		if not success:
 			print("no")
 			break
 		#frame = cv2.imread("C:/Users/raul/Desktop/manyface/WhatsApp Image 2023-05-20 at 13.26.12.jpg")
@@ -56,6 +57,9 @@ def main():
 				# Extract the region of the face
 				#print(faces)
 				x, y, w, h = face
+				print(h)
+				if h < 200:
+					break
 				#face_region = frame[y:y+h, x:x+w]
 				cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
@@ -70,11 +74,11 @@ def main():
 				#a = 0
 				vector = []
 				baseline = numpy.linalg.norm(numpy.array(landmarks[0])-numpy.array(landmarks[16]))
-				for x in range(68):
-					for y in range(x+1,68):
-						vector.append(baseline/(numpy.linalg.norm(numpy.array(landmarks[x])-numpy.array(landmarks[y]))))
-				'''inner_eyes = numpy.linalg.norm(numpy.array(landmarks[39])-numpy.array(landmarks[42]))
-				vector = [0] * 19
+				#for x in range(68):
+				#	for y in range(x+1,68):
+				#		vector.append(baseline/(numpy.linalg.norm(numpy.array(landmarks[x])-numpy.array(landmarks[y]))))
+				inner_eyes = numpy.linalg.norm(numpy.array(landmarks[39])-numpy.array(landmarks[42]))
+				vector = [0] * 23
 				vector[0] = baseline/inner_eyes
 				jaw1 = numpy.linalg.norm(numpy.array(landmarks[1])-numpy.array(landmarks[15]))
 				jaw2 = numpy.linalg.norm(numpy.array(landmarks[2])-numpy.array(landmarks[14]))
@@ -111,17 +115,25 @@ def main():
 				vector[16] = baseline/eye_to_nose1
 				vector[17] = baseline/eye_to_nose2
 				nose_chin = numpy.linalg.norm(numpy.array(landmarks[33])-numpy.array(landmarks[8]))
-				vector[18] = baseline/nose_chin'''
+				vector[18] = baseline/nose_chin
+				eyes_mouth1 = numpy.linalg.norm(numpy.array(landmarks[48])-numpy.array(landmarks[36]))
+				eyes_mouth2 = numpy.linalg.norm(numpy.array(landmarks[45])-numpy.array(landmarks[54]))
+				vector[19] = baseline/eyes_mouth1
+				vector[20] = baseline/eyes_mouth2
+				brow_chin1 = numpy.linalg.norm(numpy.array(landmarks[17])-numpy.array(landmarks[8]))
+				brow_chin2 = numpy.linalg.norm(numpy.array(landmarks[26])-numpy.array(landmarks[8]))
+				vector[21] = baseline/brow_chin1
+				vector[22] = baseline/brow_chin2
 				count = 0
 				for i in range(len(my_list)):
 					#output_num = str(euclidean_distance(vector,my_list[i]).item())
 					output_num = str(euclidean_distance(vector,my_list[i]))
 					flnum = float(output_num)
-					if flnum < 50:
+					if flnum < 1.5:
 						count = count + 1
 					#with open("output1.txt", "a") as f:
 					#	f.write(output_num)
-					#	f.write("\n")
+                    #    f.write("\n")
 				
 				'''with Pool(multiprocessing.cpu_count()) as p: result = p.starmap(euclidean_distance, [(vector, x) for x in my_list])
 					
