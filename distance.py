@@ -79,7 +79,7 @@ def main():
 				#	for y in range(x+1,68):
 				#		vector.append(baseline/(numpy.linalg.norm(numpy.array(landmarks[x])-numpy.array(landmarks[y]))))
 				inner_eyes = numpy.linalg.norm(numpy.array(landmarks[39])-numpy.array(landmarks[42]))
-				vector = [0] * 25
+				vector = [0] * 26
 				vector[0] = baseline/inner_eyes
 				jaw1 = numpy.linalg.norm(numpy.array(landmarks[1])-numpy.array(landmarks[15]))
 				jaw2 = numpy.linalg.norm(numpy.array(landmarks[2])-numpy.array(landmarks[14]))

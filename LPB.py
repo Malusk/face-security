@@ -101,6 +101,10 @@ def facetrain(frame, face_cascade, predictor):
             vector.append(basedistance / calculate_distance(nose_chin[0], nose_chin[1]))
 
             top_nose_eyebrow = [landmarks[22], landmarks[10]]
+            eyes_mouth1 = [landmarks[48], landmarks[36]]
+            eyes_mouth2 = [landmarks[45], landmarks[54]]
+            vector.append(basedistance / calculate_distance(eyes_mouth1[0], eyes_mouth1[1]))
+            vector.append(basedistance / calculate_distance(eyes_mouth2[0], eyes_mouth2[1]))
             outer_eyes_to_outermouth1 = [landmarks[48], landmarks[36]]
             outer_eyes_to_outermouth2 = [landmarks[45], landmarks[54]]
             vector.append(basedistance / calculate_distance(outer_eyes_to_outermouth1[0], outer_eyes_to_outermouth1[1]))
