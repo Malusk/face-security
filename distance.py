@@ -2,6 +2,7 @@ import math
 import cv2
 import numpy
 import dlib
+import telebot
 #import torch
 from concurrent.futures import ThreadPoolExecutor
 #import torch_directml
@@ -11,7 +12,6 @@ start_time = time.time()
 #dml = torch_directml.device()
 from multiprocessing import Pool
 import multiprocessing
-
 # Define a function to compute the Euclidean distance between two vectors
 '''def euclidean_distance(x, y):
   # Convert the vectors to torch tensors on the DirectML device
@@ -37,22 +37,23 @@ def main():
 			values = line.split(",")
 			# Convert each value to its appropriate data type and append to my_list
 			my_list.append([float(v) for v in values])
+	my_list = numpy.array(my_list)
 	video = cv2.VideoCapture(0)
 	video.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
 	video.set(cv2.CAP_PROP_FRAME_WIDTH,960)
+	face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+	predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 	while video.isOpened():
 		success, frame = video.read()
 		if not success:
 			print("no")
 			break
 		#frame = cv2.imread("C:/Users/raul/Desktop/manyface/WhatsApp Image 2023-05-20 at 13.26.12.jpg")
-		face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 		if len(faces) > 0:
 			for face in faces:
 				# Load the pre-trained model
-				predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
 				# Extract the region of the face
 				#print(faces)
@@ -78,7 +79,7 @@ def main():
 				#	for y in range(x+1,68):
 				#		vector.append(baseline/(numpy.linalg.norm(numpy.array(landmarks[x])-numpy.array(landmarks[y]))))
 				inner_eyes = numpy.linalg.norm(numpy.array(landmarks[39])-numpy.array(landmarks[42]))
-				vector = [0] * 23
+				vector = [0] * 25
 				vector[0] = baseline/inner_eyes
 				jaw1 = numpy.linalg.norm(numpy.array(landmarks[1])-numpy.array(landmarks[15]))
 				jaw2 = numpy.linalg.norm(numpy.array(landmarks[2])-numpy.array(landmarks[14]))
@@ -116,14 +117,20 @@ def main():
 				vector[17] = baseline/eye_to_nose2
 				nose_chin = numpy.linalg.norm(numpy.array(landmarks[33])-numpy.array(landmarks[8]))
 				vector[18] = baseline/nose_chin
+				top_nose_eyebrow = numpy.linalg.norm(numpy.array(landmarks[22])-numpy.array(landmarks[10]))
 				eyes_mouth1 = numpy.linalg.norm(numpy.array(landmarks[48])-numpy.array(landmarks[36]))
 				eyes_mouth2 = numpy.linalg.norm(numpy.array(landmarks[45])-numpy.array(landmarks[54]))
 				vector[19] = baseline/eyes_mouth1
 				vector[20] = baseline/eyes_mouth2
+				vector[21] = baseline/top_nose_eyebrow
+				outer_eyes_to_outermouth1 = numpy.linalg.norm(numpy.array(landmarks[48])-numpy.array(landmarks[36]))
+				outer_eyes_to_outermouth2 = numpy.linalg.norm(numpy.array(landmarks[45])-numpy.array(landmarks[54]))
+				vector[22] = outer_eyes_to_outermouth1
+				vector[23] = outer_eyes_to_outermouth2
 				brow_chin1 = numpy.linalg.norm(numpy.array(landmarks[17])-numpy.array(landmarks[8]))
 				brow_chin2 = numpy.linalg.norm(numpy.array(landmarks[26])-numpy.array(landmarks[8]))
-				vector[21] = baseline/brow_chin1
-				vector[22] = baseline/brow_chin2
+				vector[24] = baseline/brow_chin1
+				vector[25] = baseline/brow_chin2
 				count = 0
 				for i in range(len(my_list)):
 					#output_num = str(euclidean_distance(vector,my_list[i]).item())
@@ -147,6 +154,14 @@ def main():
 						if r < 250:
 							count = count + 1'''
 				print(count)
+				if count < 10:
+					chat_id = 5539291957
+					_, encoded_image = cv2.imencode('.jpg', frame)
+					byte_array = encoded_image.tobytes()
+					#photo = open("Frame.jpg", "rb")
+					bot.send_photo(chat_id, byte_array)
+					#photo.close()
+					cv2.imwrite('Frame.jpg',frame)
 		
 def euclidean_distance(x, y):
 	return math.sqrt(sum([(a - b) ** 2 for a, b in zip(x, y)]))
