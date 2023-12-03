@@ -39,14 +39,14 @@ def facetrain(frame, face_cascade, predictor):
     if len(faces) > 0:
         for face in faces:
             x, y, w, h = face
-            if w < 250:
-                break
+            #if w < 250:
+            #    break
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
             shape = predictor(frame, dlib.rectangle(int(x), int(y), int(x + w), int(y + h)))
             landmarks = [(shape.part(i).x, shape.part(i).y) for i in range(shape.num_parts)]
 
-            baseline = numpy.linalg.norm(numpy.array(landmarks[0])-numpy.array(landmarks[16]))
+            baseline = [landmarks[0], landmarks[16]]
             inner_eyes = [landmarks[39], landmarks[42]]
             basediffx = baseline[0][0] - baseline[1][0]
             basediffy = baseline[0][1] - baseline[1][1]
@@ -105,25 +105,20 @@ def facetrain(frame, face_cascade, predictor):
             eyes_mouth2 = [landmarks[45], landmarks[54]]
             vector.append(basedistance / calculate_distance(eyes_mouth1[0], eyes_mouth1[1]))
             vector.append(basedistance / calculate_distance(eyes_mouth2[0], eyes_mouth2[1]))
-            outer_eyes_to_outermouth1 = [landmarks[48], landmarks[36]]
-            outer_eyes_to_outermouth2 = [landmarks[45], landmarks[54]]
-            vector.append(basedistance / calculate_distance(outer_eyes_to_outermouth1[0], outer_eyes_to_outermouth1[1]))
-            vector.append(basedistance / calculate_distance(outer_eyes_to_outermouth2[0], outer_eyes_to_outermouth2[1]))
             vector.append(basedistance / calculate_distance(top_nose_eyebrow[0], top_nose_eyebrow[1]))
 
             brow_to_chin1 = [landmarks[17], landmarks[8]]
             brow_to_chin2 = [landmarks[26], landmarks[8]]
             vector.append(basedistance / calculate_distance(brow_to_chin1[0], brow_to_chin1[1]))
             vector.append(basedistance / calculate_distance(brow_to_chin2[0], brow_to_chin2[1]))
-
+            print(len(vector))
             output_str = ",".join(str(i) for i in vector)
-
             with open("output.txt", "a") as f:
                 f.write(output_str)
                 f.write("\n")
 
     cv2.imwrite('Frame.jpg', frame)
-    print(len(faces))
+#    print(len(faces))
 
 def calculate_distance(point1, point2):
     diffx = point1[0] - point2[0]
