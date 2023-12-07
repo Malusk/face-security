@@ -1,50 +1,49 @@
 import dlib
 import cv2
 import math
-import numpy
-#import os
-#import time
+import numpy as np
 
-#start_time = time.time()
-# Load the Haar cascade file for face detection
-
-# Load the image
-
-# Convert the image to grayscale
-#gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-# Detect faces in the image
-#faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-
-# If a face is detected, detect the facial landmarks
-#video = cv2.VideoCapture(0)
-#video.set(cv2.CAP_PROP_POS_FRAMES, 1170)
-#while video.isOpened():
-  # Read the frame
-  #success, frame = video.read(0)
-  #if not success:
-   # print("no")
-    #break
-  #cv2.imshow('Video', frame)
- # cv2.imwrite('Frame.jpg',frame)
 # Initialize face_cascade and predictor outside the function
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
-def facetrain(frame, face_cascade, predictor):
+def calculate_distance(point1, point2):
+    """
+    Calculate the Euclidean distance between two points.
 
+    Args:
+        point1 (tuple): The coordinates of the first point (x, y).
+        point2 (tuple): The coordinates of the second point (x, y).
+
+    Returns:
+        float: The Euclidean distance between the two points.
+    """
+    x1, y1 = point1
+    x2, y2 = point2
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+
+def facetrain(frame, face_cascade, predictor):
+    """
+    Detect faces in the frame, extract facial landmarks, calculate ratios, and save the results.
+
+    Args:
+        frame (numpy.ndarray): The input frame (image) in which faces are to be detected and landmarks are to be extracted.
+        face_cascade (cv2.CascadeClassifier): The face cascade classifier used to detect faces in the frame.
+        predictor (dlib.shape_predictor): The shape predictor used to extract facial landmarks.
+
+    Returns:
+        None
+    """
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
     if len(faces) > 0:
-        for face in faces:
-            x, y, w, h = face
-            #if w < 250:
-            #    break
+        for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-            shape = predictor(frame, dlib.rectangle(int(x), int(y), int(x + w), int(y + h)))
-            landmarks = [(shape.part(i).x, shape.part(i).y) for i in range(shape.num_parts)]
+            shape = predictor(gray, dlib.rectangle(x, y, x + w, y + h))
+            landmarks = np.array([(shape.part(i).x, shape.part(i).y) for i in range(shape.num_parts)])
 
             baseline = [landmarks[0], landmarks[16]]
             inner_eyes = [landmarks[39], landmarks[42]]
@@ -111,7 +110,6 @@ def facetrain(frame, face_cascade, predictor):
             brow_to_chin2 = [landmarks[26], landmarks[8]]
             vector.append(basedistance / calculate_distance(brow_to_chin1[0], brow_to_chin1[1]))
             vector.append(basedistance / calculate_distance(brow_to_chin2[0], brow_to_chin2[1]))
-            print(len(vector))
             output_str = ",".join(str(i) for i in vector)
             with open("output.txt", "a") as f:
                 f.write(output_str)
@@ -137,33 +135,3 @@ while video.isOpened():
     print("no")
     break
   facetrain(frame, face_cascade, predictor)
-#directory = 'C:/Users/demen/Desktop/manyface'
-    # The function successfully detects faces in the input frame.
-
-# Recursively iterate over files in the directory and its subdirectories
-'''for root, dirs, files in os.walk(directory):
-    for filename in files:
-        # Check if the file is an image based on its extension
-        if filename.endswith('.jpg') or filename.endswith('.png') or filename.endswith('.jpeg'):
-            # Create the full file path
-            file_path = os.path.join(root, filename)
-
-            # Open the image file using OpenCV
-            try:
-                image = cv2.imread(file_path)
-                #cv2.imwrite('Frame.jpg',image)
-                if image is not None:
-                    # Do something with the image here
-                    # ...
-                    facetrain(image)
-                    # Close the image file (no need to do anything with cv2.imread())
-                    pass
-                else:
-                    print(f"Failed to open {file_path}. It may not be a valid image file.")
-            except Exception as e:
-                print(f"Error occurred while processing {file_path}: {str(e)}")
-
-end_time = time.time()
-execution_time = end_time - start_time
-
-print(f"Execution time: {execution_time} seconds")'''
