@@ -2,7 +2,7 @@ import math
 import cv2
 import numpy
 import dlib
-#import telebot
+import telebot
 def calculate_vector(landmarks):
     """
     Calculate a vector based on the facial landmarks.
@@ -100,8 +100,8 @@ def main():
             my_list.append([float(v) for v in values])
 
     video = cv2.VideoCapture(0)
-    video.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    video.set(cv2.CAP_PROP_FRAME_WIDTH, 960)
+    video.set(cv2.CAP_PROP_FRAME_WIDTH,1920)
+    video.set(cv2.CAP_PROP_FRAME_HEIGHT,1080)
 
     face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
     predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
@@ -122,10 +122,16 @@ def main():
                 landmarks = [(shape.part(i).x, shape.part(i).y) for i in range(shape.num_parts)]
                 vector = calculate_vector(landmarks)
                 count = compare_vector(vector, my_list)
+                if count < 10:
+                    bot = telebot.TeleBot('APIKEY')
+                    chat_id = 5539291957
+                    _, encoded_image = cv2.imencode('.jpg', frame)
+                    byte_array = encoded_image.tobytes()
+                    photo = open("Frame.jpg", "rb")
+                    bot.send_photo(chat_id, byte_array)
+                    photo.close()
                 print(count)
 
-def euclidean_distance(x, y):
-    return math.sqrt(sum([(a - b) ** 2 for a, b in zip(x, y)]))
     
 if __name__ == "__main__":
     main()
